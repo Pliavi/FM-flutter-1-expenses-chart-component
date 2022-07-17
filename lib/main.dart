@@ -12,16 +12,39 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    final textTheme = GoogleFonts.dmSansTextTheme();
 
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        textTheme: GoogleFonts.dmSansTextTheme(textTheme).copyWith(
-          bodyText2: GoogleFonts.dmSansTextTheme().bodyText2?.copyWith(
-                fontSize: 18,
-              ),
+        textTheme: textTheme.copyWith(
+          headlineSmall: textTheme.headlineSmall?.copyWith(
+            fontSize: 14,
+            color: CColors.mediumBrown,
+            fontWeight: FontWeight.w500,
+          ),
+          headlineMedium: textTheme.headlineMedium?.copyWith(
+            color: CColors.darkBrown,
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+          labelMedium: textTheme.labelMedium?.copyWith(
+            color: CColors.mediumBrown,
+          ),
+          bodyMedium: textTheme.bodyMedium?.copyWith(
+            color: Colors.white,
+            fontWeight: FontWeight.normal,
+          ),
+          displaySmall: textTheme.displaySmall?.copyWith(
+            color: Colors.white,
+            fontSize: 28,
+          ),
+          displayMedium: textTheme.displayMedium?.copyWith(
+            color: CColors.darkBrown,
+            fontSize: 32,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       home: const ExpenseChart(),
@@ -34,6 +57,8 @@ class ExpenseChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       backgroundColor: CColors.background,
       body: Center(
@@ -45,10 +70,10 @@ class ExpenseChart extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: CColors.primary,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -56,9 +81,9 @@ class ExpenseChart extends StatelessWidget {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("My balance"),
+                          Text("My balance", style: textTheme.bodyMedium),
                           SizedBox(height: 8),
-                          Text("\$921,48"),
+                          Text("\$921.48", style: textTheme.displaySmall),
                         ],
                       ),
                       SvgPicture.asset("assets/images/logo.svg"),
@@ -68,14 +93,17 @@ class ExpenseChart extends StatelessWidget {
                 const SizedBox(height: 16),
                 Container(
                   decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
+                    color: CColors.paper,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text("Spending - Last 7 days"),
+                      Text(
+                        "Spending - Last 7 days",
+                        style: textTheme.headlineMedium,
+                      ),
                       const SizedBox(height: 8),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -89,17 +117,20 @@ class ExpenseChart extends StatelessWidget {
                           _SpendingColumn("sun", 42),
                         ],
                       ),
-                      Divider(color: CColors.borders, thickness: 3),
-                      Text("Total this month"),
+                      Divider(color: CColors.borders, thickness: 2),
+                      Text("Total this month", style: textTheme.headlineSmall),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("\$478.33"),
+                          Text("\$478.33", style: textTheme.displayMedium),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text("+2.4%"),
-                              Text("from last month"),
+                              Text("+2.4%", style: textTheme.bodyLarge),
+                              Text(
+                                "from last month",
+                                style: textTheme.headlineSmall,
+                              ),
                             ],
                           )
                         ],
@@ -130,6 +161,8 @@ class _SpendingColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Expanded(
       child: Column(
         children: [
@@ -138,10 +171,13 @@ class _SpendingColumn extends StatelessWidget {
               color: active ? CColors.secondary : CColors.primary,
               borderRadius: BorderRadius.circular(4),
             ),
-            margin: const EdgeInsets.all(8),
+            margin: const EdgeInsets.all(4),
             height: value,
           ),
-          Text(day),
+          Text(
+            day,
+            style: textTheme.labelMedium,
+          ),
         ],
       ),
     );
