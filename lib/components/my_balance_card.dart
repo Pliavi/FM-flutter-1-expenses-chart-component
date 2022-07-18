@@ -3,15 +3,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MyBalanceCard extends StatelessWidget {
-  const MyBalanceCard({
-    Key? key,
-    required this.textTheme,
-  }) : super(key: key);
-
-  final TextTheme textTheme;
+  const MyBalanceCard({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -25,7 +22,7 @@ class MyBalanceCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text("My balance", style: textTheme.bodyMedium),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text("\$921.48", style: textTheme.displaySmall),
             ],
           ),
