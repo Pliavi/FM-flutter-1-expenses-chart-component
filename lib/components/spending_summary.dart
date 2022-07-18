@@ -4,13 +4,26 @@ import 'package:flutter/material.dart';
 class SpendingSummary extends StatelessWidget {
   const SpendingSummary({
     Key? key,
-    required this.textTheme,
+    required this.spendings,
   }) : super(key: key);
 
-  final TextTheme textTheme;
+  final Map<String, double> spendings;
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final monthTotal =
+        spendings.values.fold<double>(0.0, (sum, spending) => sum + spending);
+
+    final Map<String, double> dayPercentage = {};
+
+    for (final day in spendings.keys) {
+      final amount = spendings[day]!;
+      final double percentage = amount / monthTotal * 100 * 7;
+
+      dayPercentage[day] = percentage.isNaN ? 0.0 : percentage;
+    }
+
     return Container(
       decoration: BoxDecoration(
         color: CColors.paper,
@@ -25,24 +38,27 @@ class SpendingSummary extends StatelessWidget {
             style: textTheme.headlineMedium,
           ),
           const SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              _SpendingColumn("mon", 30),
-              _SpendingColumn("tue", 50),
-              _SpendingColumn("wed", 100, active: true),
-              _SpendingColumn("thu", 45),
-              _SpendingColumn("fri", 40),
-              _SpendingColumn("sat", 60),
-              _SpendingColumn("sun", 42),
-            ],
+          SizedBox(
+            height: 200,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: dayPercentage.keys
+                  .map(
+                    (day) => _SpendingColumn(
+                      day,
+                      spendings[day]!,
+                      dayPercentage[day]!,
+                    ),
+                  )
+                  .toList(),
+            ),
           ),
-          Divider(color: CColors.borders, thickness: 2),
+          const Divider(color: CColors.borders, thickness: 2),
           Text("Total this month", style: textTheme.headlineSmall),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("\$478.33", style: textTheme.displayMedium),
+              Text("\$$monthTotal", style: textTheme.displayMedium),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -61,38 +77,103 @@ class SpendingSummary extends StatelessWidget {
   }
 }
 
-class _SpendingColumn extends StatelessWidget {
+class _SpendingColumn extends StatefulWidget {
   const _SpendingColumn(
     this.day,
-    this.value, {
+    this.value,
+    this.percentage, {
     Key? key,
-    this.active = false,
   }) : super(key: key);
 
   final double value;
-  final bool active;
+  final double percentage;
   final String day;
+
+  @override
+  State<_SpendingColumn> createState() => _SpendingColumnState();
+}
+
+class _SpendingColumnState extends State<_SpendingColumn> {
+  bool _isHovered = false;
+  bool _isSelected = false;
+
+  final _focusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    Color color = _isSelected ? CColors.secondary : CColors.primary;
+
+    if (_isHovered) {
+      color = color.withOpacity(0.7);
+    }
 
     return Expanded(
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              color: active ? CColors.secondary : CColors.primary,
-              borderRadius: BorderRadius.circular(4),
+      child: InkWell(
+        focusNode: _focusNode,
+        canRequestFocus: true,
+        onTap: () {
+          setState(() {
+            _isSelected = !_isSelected;
+            _focusNode.requestFocus();
+          });
+        },
+        onHover: (isHovered) {
+          setState(() {
+            _isHovered = isHovered;
+          });
+        },
+        onFocusChange: (hasFocus) {
+          setState(() {
+            _isSelected = hasFocus;
+          });
+        },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Stack(
+              clipBehavior: Clip.none,
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top: -30,
+                  height: 28,
+                  child: Visibility(
+                    visible: _isHovered,
+                    child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        '\$${widget.value}',
+                        softWrap: false,
+                      ),
+                    ),
+                  ),
+                ),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 500),
+                  margin: const EdgeInsets.all(4),
+                  height: (widget.percentage - 28).abs(),
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            margin: const EdgeInsets.all(4),
-            height: value,
-          ),
-          Text(
-            day,
-            style: textTheme.labelMedium,
-          ),
-        ],
+            Text(
+              widget.day,
+              style: textTheme.labelMedium,
+            ),
+          ],
+        ),
       ),
     );
   }
